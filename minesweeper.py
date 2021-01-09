@@ -5,10 +5,9 @@ import time
 pg.init()
 
 screen = pg.display.set_mode((350, 430))
-
 pg.display.set_caption("minesweep")
 
-running = True
+
 
 num_font = pg.font.SysFont("Viga",35 ,bold=100)
 
@@ -18,12 +17,11 @@ pg.key.set_repeat(1, 1)
 
 win_font = pg.font.SysFont("Viga", 150)
 
-text_list = []
 
 bomb = 10
-
 down_button = 0
 
+running = True
 replay_button = True
 
 win_game = win_font.render("WIN!", True, (255,255,255,128))
@@ -42,6 +40,9 @@ num_light_list =[
     (True, True, True, True, True, True, True),
     (True, True, False, True, True, True, True)
 ]
+
+text_list = []
+
 for a in range(8):
     text_list.append(num_font.render(str(a+1), True, color_list[a]))
 
@@ -152,7 +153,6 @@ def set_array():
 def draw_num(x,y,num):
     light = num_light_list[num]
 
-
     light_color = (96,0,0)
     if light[0]:
         light_color = (255,0,0)
@@ -243,7 +243,7 @@ def d_time():
                 draw_num(224+a*34,28, int(num))
 
 def d_background():
-    d_block(0,0,350,500,(192,192,192),4,4,True)
+    d_block(0,0,350,430,(192,192,192),4,4,True)
     d_block(20 , 13 , 311 , 80,(198,198,198),5,2, False)
 
     d_block(20, 100, 310,310,(0,0,0),5,5 ,False)
@@ -253,10 +253,26 @@ def d_background():
     d_block(145, 23 , 60,60 ,  (198,198,198),5,5, replay_button)
 
     pg.draw.circle(screen, (248,253,34), (175,53), 20)
-    pg.draw.circle(screen, (0,0,0), (168 , 48), 3)
-    pg.draw.circle(screen, (0,0,0), (183 , 48), 3)
-    pg.draw.ellipse(screen, (0,0,0), [165,57, 21, 10])
-    pg.draw.ellipse(screen, (255,255,0), [165,53, 21, 10])
+    if not gameover and not win:
+        pg.draw.circle(screen, (0,0,0), (168 , 48), 3)
+        pg.draw.circle(screen, (0,0,0), (183 , 48), 3)
+        pg.draw.ellipse(screen, (0,0,0), [165,57, 21, 10])
+        pg.draw.ellipse(screen, (255,255,0), [165,53, 21, 10]) 
+    elif gameover and not win:
+        pg.draw.line(screen, (0,0,0),(165, 45), (170, 50) ,3)
+        pg.draw.line(screen, (0,0,0),(170, 45), (165, 50) ,3)
+        pg.draw.line(screen, (0,0,0),(180, 45), (185, 50) ,3)
+        pg.draw.line(screen, (0,0,0),(185, 45), (180, 50) ,3)
+        pg.draw.ellipse(screen, (0,0,0), [165,59, 21, 10])
+        pg.draw.ellipse(screen, (255,255,0), [165,63, 21, 10])
+    else:
+        pg.draw.rect(screen, (0,0,0), [163, 44, 9, 7])
+        pg.draw.rect(screen, (0,0,0), [178, 44, 9, 7])
+        pg.draw.line(screen, (0,0,0),(163, 46), (185, 46) ,2)
+        pg.draw.line(screen, (0,0,0),(163, 46), (157, 43) ,2)
+        pg.draw.line(screen, (0,0,0),(187, 46), (192, 43) ,2)
+        pg.draw.ellipse(screen, (0,0,0), [165,57, 21, 10])
+        pg.draw.ellipse(screen, (255,255,0), [165,53, 21, 10]) 
     
 def d_line():
     for a in range(11):
@@ -264,7 +280,6 @@ def d_line():
         pg.draw.line(screen, (128,128,128),(25, 104+30*a),(325, 104+30*a),  1)
 
 def check_win():
-    global gameover
     find = 0
     for a in range(100):
             if state_array[a//10][a%10] == 0:
@@ -448,7 +463,7 @@ while running:
                 down_button = 10
             
             if not win and not gameover:
-                if mouse_x > 30 and mouse_x < 325 and mouse_y > 100 and mouse_y < 400:
+                if mouse_x > 32 and mouse_x < 323 and mouse_y > 107 and mouse_y < 398:
                     if start_time:
                         start = time.time()
                       
