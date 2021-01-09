@@ -308,7 +308,7 @@ def update_main_array():
             elif int(now) <  100:
                 now = f"0{now}"
             else:
-                now = str(now)d
+                now = str(now)
         red_block = [mouse_y, mouse_x]
 
     elif state == 1 or state == 2:
