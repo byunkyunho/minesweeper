@@ -284,7 +284,7 @@ def d_board(i,j):
 
     if state_array[i][j] == 2:
         pg.draw.polygon(screen, (255,0,0), [(35+j*30, 122+i*30), (35+j*30, 108 +i*30),(48+j*30, 115+i*30)])
-        pg.draw.line(screen, (0,0,0), (34+j*30, 109 +i*30), (34+j*30, 128 +i*30), 3)
+        pg.draw.line(screen, (0,0,0), (34+j*30, 108 +i*30), (34+j*30, 128 +i*30), 3)
 
 def d_all_bomb(i,j):
     if main_array[i][j] == 10:
