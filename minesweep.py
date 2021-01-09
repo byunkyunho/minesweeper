@@ -231,7 +231,7 @@ def d_time():
         else:
             now = round(time.time() - start)
             if int(now) > 999:
-                now = 999
+                now = "999"
             else:
                 if int(now) < 10:
                     now = f"00{now}"
@@ -308,7 +308,7 @@ def update_main_array():
             elif int(now) <  100:
                 now = f"0{now}"
             else:
-                now = str(now)
+                now = str(now)d
         red_block = [mouse_y, mouse_x]
 
     elif state == 1 or state == 2:
