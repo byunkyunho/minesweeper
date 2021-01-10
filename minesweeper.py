@@ -7,8 +7,6 @@ pg.init()
 screen = pg.display.set_mode((350, 430))
 pg.display.set_caption("minesweep")
 
-
-
 num_font = pg.font.SysFont("Viga",35 ,bold=100)
 
 white = (255,255,255)
@@ -16,7 +14,6 @@ white = (255,255,255)
 pg.key.set_repeat(1, 1)
 
 win_font = pg.font.SysFont("Viga", 150)
-
 
 bomb = 10
 down_button = 0
@@ -27,6 +24,8 @@ replay_button = True
 win_game = win_font.render("WIN!", True, (255,255,255,128))
 
 color_list = [(0,0,255), (0,128,0), (255,0,0),(1, 0, 124),(1, 0, 124),(1, 0, 124),(1, 0, 124),(1, 0, 124)]
+
+index_list = [(0, - 1), (0,  1), (1, 0), ( -1, 0), (-1, 1), (- 1, - 1), (1,1), (1, -1)]
 
 num_light_list =[
     (True, True, True, True, True, True, False),
@@ -40,7 +39,6 @@ num_light_list =[
     (True, True, True, True, True, True, True),
     (True, True, False, True, True, True, True)
 ]
-
 text_list = []
 
 for a in range(8):
@@ -69,145 +67,44 @@ def set_array():
             main_array[random_raw][random_column] = 10
             random += 1
 
-    for a in range(10):
-        for b in range(10):
-            #print("[ ", end='')
-            around_bomb = 0
-            if not main_array[a][b] == 10:
-                if not a == 0 and not b == 0:
-                    if main_array[a - 1][b - 1] == 10:
+    for loop in range(100):
+        x,y = loop % 10, loop // 10
+        around_bomb = 0
+        if not main_array[y][x] == 10:
+            check_list = [ x != 0, x !=9, y != 9, y != 0, y != 0 and x != 9, y != 0 and x != 0, y != 9 and x != 9, y != 9 and x != 0]
+            for check, index in zip(check_list, index_list):
+                if check:
+                    if main_array[y + index[0]][x + index[1]] == 10:
                         around_bomb += 1
-                        #print("1", end='')
 
-                    # O X X
-                    # X X X
-                    # X X X 
+            main_array[y][x] = around_bomb
 
-                if not a == 0:
-                    if main_array[a - 1][b] == 10:
-                        around_bomb += 1
-                        #print("2", end='')
-
-                    # X O X
-                    # X X X
-                    # X X X 
-
-                if not a == 0 and not b == 9 :
-                    if main_array[a - 1][b + 1] == 10:
-                        around_bomb += 1
-                        #print("3", end='')
-
-                    # X X O
-                    # X X X
-                    # X X X 
-
-                if not b == 9:
-                    if main_array[a][b + 1] == 10:
-                        around_bomb += 1
-                        #print("4", end='')
-
-                    # X X X
-                    # X X O
-                    # X X X 
-
-                if not b == 0:
-                    if main_array[a][b - 1] == 10:
-                        around_bomb += 1
-                        #print("5", end='')
-
-                    # X X X
-                    # O X X
-                    # X X X 
-
-                if not a == 9:
-                    if main_array[a + 1][b] == 10:
-                        around_bomb += 1
-                        #print("6", end='')
-
-                    # X x X
-                    # X X X
-                    # X O X 
-
-                if not b == 0 and not a == 9:
-                    if main_array[a + 1][b - 1] == 10:
-                        around_bomb += 1
-                        #print("7", end='')
-
-                    # X x X
-                    # X X X
-                    # O X X 
-
-                if not b == 9 and not a == 9:
-                    if main_array[a + 1][b + 1] == 10:
-                        around_bomb += 1
-                        #print("8", end='')
-
-                    # X x X
-                    # X X X
-                    # X x O 
-                
-                #print(" ] ", end='')
-                main_array[a][b] = around_bomb
-        #print()
+def change_color(index):
+    global light_color
+    light_color = (96,0,0)
+    if light[index]:
+        light_color = (255,0,0)
 
 def draw_num(x,y,num):
+    global light_color, light
+    
     light = num_light_list[num]
 
-    light_color = (96,0,0)
-    if light[0]:
-        light_color = (255,0,0)
-
-    pg.draw.rect(screen, light_color, [x , y, 10,6])
-    pg.draw.polygon(screen, light_color, [(x, y), (x - 5, y ), (x, y + 5)])
-    pg.draw.polygon(screen, light_color, [(x + 10, y), (x + 15, y ), (x + 10, y + 5)])
-
-    light_color = (96,0,0)
-    if light[1]:
-        light_color = (255,0,0)
-
-    pg.draw.rect(screen, light_color, [x - 6 , y + 8, 6,9])
-    pg.draw.polygon(screen, light_color, [(x - 6 , y + 8), (x - 1, y + 8 ), (x  - 6, y + 3)])
-    pg.draw.polygon(screen, light_color, [(x - 6 , y + 17), (x - 1, y + 17 ), (x - 6, y + 22)])
-
-    light_color = (96,0,0)
-    if light[2]:
-        light_color = (255,0,0)
-
-    pg.draw.rect(screen, light_color, [x - 6 , y + 31, 6,9])
-    pg.draw.polygon(screen, light_color, [(x - 6 , y + 30), (x - 1, y + 30 ), (x  - 6, y + 24)])
-    pg.draw.polygon(screen, light_color, [(x - 6 , y + 40), (x - 1, y + 40 ), (x - 6, y + 45)])
-
-    light_color = (96,0,0)
-    if light[3]:
-        light_color = (255,0,0)
-
-    pg.draw.rect(screen, light_color, [x + 12 , y + 8, 6,9])
-    pg.draw.polygon(screen, light_color, [(x + 17 , y + 8), (x + 12, y + 8 ), (x  + 17, y + 3)])
-    pg.draw.polygon(screen, light_color, [(x + 17 , y + 17), (x + 12, y + 17 ), (x +17, y + 22)])
-
-    light_color = (96,0,0)
-    if light[4]:
-        light_color = (255,0,0)
-
-    pg.draw.rect(screen, light_color, [x + 12 , y + 31, 6,9])
-    pg.draw.polygon(screen, light_color, [(x + 17 , y + 30), (x + 12, y + 30 ), (x  + 17, y + 24)])
-    pg.draw.polygon(screen, light_color, [(x + 17 , y + 40), (x + 12, y + 40 ), (x +17, y + 45)])
-
-    light_color = (96,0,0)
-    if light[5]:
-        light_color = (255,0,0)
-
-    pg.draw.rect(screen, light_color, [x + 1 , y + 42, 9,6])
-    pg.draw.polygon(screen, light_color, [(x + 1, y + 42), (x - 4, y + 47 ), (x, y + 47)])
-    pg.draw.polygon(screen, light_color, [(x + 10, y  +42), (x + 15, y+ 47 ), (x + 10, y + 47)])
-
-    light_color = (96,0,0)
-    if light[6]:
-        light_color = (255,0,0)
-
-    pg.draw.rect(screen, light_color, [x , y + 20, 11,7])
-    pg.draw.polygon(screen, light_color, [(x , y + 20), ( x - 5,y+ 23 ), (x, y + 26)])
-    pg.draw.polygon(screen, light_color, [(x + 10 , y + 20), ( x + 15,y+ 23 ), (x + 10, y + 26)])
+    num_xy_list =[
+        (0,0,10,6,0,0,  -5, 0, 0, 5, 10, 0, 15,0, 10, 5),
+        ( -6,8,6,9,-6,8,-1,8,-6,3,-6,17,-1,17,-6,22), 
+        (-6,31,6,9,-6,30,-1,30,-6,24,-6,40,-1,40,-6,45),
+        (12,8,6,9,17,8,12,8,17,3,17,17,12,17,17,22),
+        (12,31,6,9,17,30,12,30,17,24,17,40,12,40,17,45),
+        (1,42,9,6,1,42,-4,47,0,47,10,42,15,47,10,47),
+        (0,20,11,7,0,20,-5,23,0,26,10,20,15,23,10,26),
+    ]
+    for num in range(7):
+        change_color(num)
+        xy_list = num_xy_list[num]
+        pg.draw.rect(screen, light_color, [x + xy_list[0] , y + xy_list[1], xy_list[2],xy_list[3]])
+        pg.draw.polygon(screen, light_color, [(x + xy_list[4], y + xy_list[5]), (x + xy_list[6], y + xy_list[7] ), (x + xy_list[8], y + xy_list[9])])
+        pg.draw.polygon(screen, light_color, [(x + xy_list[10],y + xy_list[11]), (x  + xy_list[12], y+ xy_list[13] ), (x + xy_list[14], y + xy_list[15])])
 
 def game_set():
     global main_array, state_array, gameover, bomb, start_time, start, win, red_block
@@ -253,6 +150,7 @@ def d_background():
     d_block(145, 23 , 60,60 ,  (198,198,198),5,5, replay_button)
 
     pg.draw.circle(screen, (248,253,34), (175,53), 20)
+    
     if not gameover and not win:
         pg.draw.circle(screen, (0,0,0), (168 , 48), 3)
         pg.draw.circle(screen, (0,0,0), (183 , 48), 3)
@@ -331,104 +229,34 @@ def update_main_array():
             bomb += 1
         if main_array[mouse_y][mouse_x] == 0:
             open_list = [(mouse_y, mouse_x)]         
-            
             for a in range(20):
                 copy_list = open_list[:]
-                for y,x in copy_list:
-                    if not x == 0:                                 
-                        if main_array[y][x - 1] == 0:
-                            open_list.append((y, x - 1))
-
-                    if not x == 9:
-                        if main_array[y][x + 1] == 0:
-                            open_list.append((y, x + 1))
-
-                    if not y == 9:
-                        if main_array[y + 1][x] == 0:
-                            open_list.append((y + 1, x))
-
-                    if not y == 0:
-                        if main_array[y - 1][x] == 0:    
-                            open_list.append((y - 1, x))
-
-                    if not y == 0 and not x == 9:
-                        if  main_array[y - 1][x + 1] == 0:
-                            open_list.append((y - 1, x + 1))
-
-                    if not y == 0 and not x == 0:
-                        if  main_array[y - 1][x - 1] == 0:
-                            open_list.append((y - 1, x - 1))
-
-                    if not y == 9 and not x == 9:
-                        if  main_array[y + 1][x + 1] == 0:
-                            open_list.append((y + 1, x + 1))
-
-                    if not y == 9 and not x == 0:
-                        if  main_array[y + 1][x - 1] == 0:
-                            open_list.append((y + 1, x - 1))  
+                for y,x in copy_list: 
+                    check_list = [ x != 0, x !=9, y != 9, y != 0, y != 0 and x != 9, y != 0 and x != 0, y != 9 and x != 9, y != 9 and x != 0]
+                    for check,index in zip(check_list, index_list):
+                        if check:
+                            if main_array[y + index[0]][x + index[1]] == 0:
+                                open_list.append((y + index[0], x + index[1])) 
 
                     open_list = list(set(open_list))
 
                 for y,x in open_list:
                     if state_array[y][x] == 2:
+
                         bomb += 1 
                     state_array[y][x] = 0
-                    
-                    if not x == 0:
-                        if not main_array[y][x - 1] == 0: 
-                            if state_array[y][x - 1] == 2:
-                                bomb += 1
-                            state_array[y][x - 1] = 0
-                            
-                    if not x == 9:
-                        if not main_array[y][x + 1] == 0:
-                            if state_array[y][x + 1] == 2:
-                                bomb += 1
-                            state_array[y][x + 1] = 0
-                            
-                    if not y == 9:
-                        if not main_array[y + 1][x] == 0:
-                            if state_array[y + 1][x] == 2:
-                                bomb += 1
-                            state_array[y + 1][x] = 0
-                            
-                    if not y == 0:
-                        if not main_array[y - 1][x] == 0:
-                            if state_array[y - 1][x] == 2:
-                                bomb += 1
-                            state_array[y - 1][x] = 0
 
-                    if not y == 0 and not x == 9:
-                        if not main_array[y - 1][x + 1] == 0:
-                            if state_array[y - 1][x + 1] == 2:
-                                bomb += 1
-                            state_array[y - 1][x + 1] = 0
+                    check_list = [ x != 0, x !=9, y != 9, y != 0, y != 0 and x != 9, y != 0 and x != 0, y != 9 and x != 9, y != 9 and x != 0]
 
-                    if not y == 0 and not x == 0:
-                        if not main_array[y - 1][x - 1] == 0:
-                            if state_array[y - 1][x - 1] == 2:
-                                bomb += 1
-                            state_array[y - 1][x - 1] = 0
-
-                    if not y == 9 and not x == 9:
-                        if not main_array[y + 1][x + 1] == 0:
-                            if state_array[y + 1][x + 1] == 2:
-                                bomb += 1
-                            state_array[y + 1][x + 1] = 0
-
-                    if not y == 9 and not x == 0:
-                        if not main_array[y + 1][x - 1] == 0:
-                            if state_array[y + 1][x - 1] == 2:
-                                bomb += 1
-                            state_array[y + 1][x - 1] = 0                                
+                    for check, index in zip(check_list, index_list):
+                        if check:
+                            if not main_array[y + index[0]][x + index[1]] == 0:
+                                if state_array[y + index[0]][x + index[1]] == 2:
+                                    bomb += 1
+                                state_array[y + index[0]][x + index[1]] = 0
+                                                  
         else:
             state_array[mouse_y][mouse_x] = 0           
-        
-def show_board():
-    print()
-    for a in main_array:
-        print(a)
-    print()
 
 def left_bomb():
     global bomb
@@ -447,13 +275,6 @@ while running:
         if event.type == pg.QUIT:
             running = False
 
-        # if event.type == pg.KEYDOWN:
-        #     if event.key == pg.K_h:
-        #         for i,a in  enumerate(main_array):
-        #             for j,b in enumerate(a):
-        #                 if not b == 10:
-        #                     state_array[i][j] = 0
-
         if event.type == pg.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pg.mouse.get_pos() 
             if mouse_x > 145 and mouse_x < 205 and mouse_y > 23 and mouse_y < 83:
@@ -469,8 +290,7 @@ while running:
                       
                         start_time = False
 
-                    mouse_x = (mouse_x - 25) // 30
-                    mouse_y = (mouse_y - 105) // 30 
+                    mouse_x, mouse_y = (mouse_x - 25) // 30 ,(mouse_y - 105) // 30
 
                     state = state_array[mouse_y][mouse_x]
 
@@ -528,4 +348,3 @@ while running:
     pg.display.update()
 
     time.sleep(0.01)
-                    
