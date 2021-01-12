@@ -60,7 +60,7 @@ def set_array():
         state_array.append([1,1,1,1,1,1,1,1,1,1])
         main_array.append([0,0,0,0,0,0,0,0,0,0])
     random = 0
-    while not random == bomb:
+    while not random == 10:
         random_raw = rd.randint(0,9)
         random_column = rd.randint(0,9)
         if not main_array[random_raw][random_column] == 10:
@@ -180,8 +180,8 @@ def d_line():
 def check_win():
     find = 0
     for a in range(100):
-            if state_array[a//10][a%10] == 0:
-                find += 1
+        if state_array[a//10][a%10] == 0:
+            find += 1
     if 90 == find:
         return True
 
