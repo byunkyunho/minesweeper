@@ -57,8 +57,8 @@ def set_array():
     main_array = []
     state_array = []
     for a in range(10):
-        state_array.append([1,1,1,1,1,1,1,1,1,1])
-        main_array.append([0,0,0,0,0,0,0,0,0,0])
+        state_array.append([1 for a in range(10)])
+        main_array.append([0 for a in range(10)])
     random = 0
     while not random == 10:
         random_raw = rd.randint(0,9)
