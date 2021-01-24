@@ -54,11 +54,8 @@ def d_block(x1,y1, width, height, center_color, side_gap,ud_gap, flip):
 
 def set_array():
     global main_array, state_array
-    main_array = []
-    state_array = []
-    for a in range(10):
-        state_array.append([1 for a in range(10)])
-        main_array.append([0 for a in range(10)])
+    state_array = [[1 for a in range(10)] for b in range(10)]
+    main_array =  [[0 for a in range(10)] for b in range(10)] 
     random = 0
     while not random == 10:
         random_raw = rd.randint(0,9)
