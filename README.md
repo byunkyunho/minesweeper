@@ -11,17 +11,4 @@ pip install random
 
 --------------------------------------
 
-![긱헙 지회찾기 죽은거](https://user-images.githubusercontent.com/65907318/105714282-7c7c8800-5f5f-11eb-9d29-b564362fb0a5.PNG)
-
-
-
-
-
-
-
-
-
-
-
-
-![깃헙 지뢰찾기 하는거](https://user-images.githubusercontent.com/65907318/105714286-7dadb500-5f5f-11eb-95d8-a77efbc79725.PNG)
+![깃헙 지뢰찾기](https://user-images.githubusercontent.com/65907318/105716977-e5b1ca80-5f62-11eb-96f3-6f327d036732.PNG)
