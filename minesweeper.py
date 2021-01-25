@@ -5,7 +5,17 @@ import time
 pg.init()
 
 screen = pg.display.set_mode((350, 430))
-pg.display.set_caption("minesweep")
+pg.display.set_caption("minesweeper")
+
+
+try:
+    load_image = pg.image.load("mine.png")
+    icon_image = pg.transform.scale(load_image, (32, 32))
+    mine_image = pg.transform.scale(load_image, (22, 22))
+    pg.display.set_icon(icon_image)
+    load_mine = True
+except :
+    load_mine = False
 
 num_font = pg.font.SysFont("Viga",35 ,bold=100)
 
@@ -13,15 +23,13 @@ white = (255,255,255)
 
 pg.key.set_repeat(1, 1)
 
-win_font = pg.font.SysFont("Viga", 150)
-
 bomb = 10
 down_button = 0
 
 running = True
 replay_button = True
 
-win_game = win_font.render("WIN!", True, (255,255,255,128))
+win_game = pg.font.SysFont("Viga", 150).render("WIN!", True, (255,255,255,128))
 
 color_list = [(0,0,255), (0,128,0), (255,0,0),(1, 0, 124),(1, 0, 124),(1, 0, 124),(1, 0, 124),(1, 0, 124)]
 
@@ -42,7 +50,7 @@ num_light_list =[
 text_list = []
 
 for a in range(8):
-    text_list.append(num_font.render(str(a+1), True, color_list[a]))
+    text_list.append(num_font.render(str(a+1), True,color_list[a]))
 
 def d_block(x1,y1, width, height, center_color, side_gap,ud_gap, flip):
     block_color = [ (128,128,128), white]
@@ -56,6 +64,7 @@ def set_array():
     global main_array, state_array
     state_array = [[1 for a in range(10)] for b in range(10)]
     main_array =  [[0 for a in range(10)] for b in range(10)] 
+
     random = 0
     while not random == 10:
         random_raw = rd.randint(0,9)
@@ -202,8 +211,11 @@ def d_all_bomb(i,j):
             pg.draw.rect(screen, (255,0,0), [25+j*30, 105+i*30, 30,30])
         else:
             pg.draw.rect(screen, (196,196,196), [25+j*30, 105+i*30, 30,30])
-        pg.draw.line(screen, (255,0,0),(35+j*30, 120+i*30),(45+j*30, 108+i*30),  2)
-        pg.draw.circle(screen, (0,0,0), (40+j*30, 120+i*30), 10)
+        if load_mine:
+            screen.blit(mine_image, (29+j*30, 109+i*30))
+        else:
+            pg.draw.line(screen, (255,0,0),(35+j*30, 120+i*30),(45+j*30, 108+i*30),  2)
+            pg.draw.circle(screen, (0,0,0), (40+j*30, 120+i*30), 10)
 
 def update_main_array():
     global gameover, main_array, open_list, state_array, red_block, start, now, bomb
@@ -237,20 +249,19 @@ def update_main_array():
 
                     open_list = list(set(open_list))
 
-                for y,x in open_list:
-                    if state_array[y][x] == 2:
+            for y,x in open_list:
+                if state_array[y][x] == 2:
+                    bomb += 1 
+                state_array[y][x] = 0
 
-                        bomb += 1 
-                    state_array[y][x] = 0
+                check_list = [ x != 0, x !=9, y != 9, y != 0, y != 0 and x != 9, y != 0 and x != 0, y != 9 and x != 9, y != 9 and x != 0]
 
-                    check_list = [ x != 0, x !=9, y != 9, y != 0, y != 0 and x != 9, y != 0 and x != 0, y != 9 and x != 9, y != 9 and x != 0]
-
-                    for check, index in zip(check_list, index_list):
-                        if check:
-                            if not main_array[y + index[0]][x + index[1]] == 0:
-                                if state_array[y + index[0]][x + index[1]] == 2:
-                                    bomb += 1
-                                state_array[y + index[0]][x + index[1]] = 0
+                for check, index in zip(check_list, index_list):
+                    if check:
+                        if not main_array[y + index[0]][x + index[1]] == 0:
+                            if state_array[y + index[0]][x + index[1]] == 2:
+                                bomb += 1
+                            state_array[y + index[0]][x + index[1]] = 0
                                                   
         else:
             state_array[mouse_y][mouse_x] = 0           
