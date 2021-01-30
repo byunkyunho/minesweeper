@@ -235,7 +235,7 @@ def d_board(i,j):
         pg.draw.polygon(screen, (255,0,0), [(35+j*30, 122+i*30), (35+j*30, 108 +i*30),(48+j*30, 115+i*30)])
         pg.draw.line(screen, (0,0,0), (34+j*30, 108 +i*30), (34+j*30, 128 +i*30), 3)
 
-def d_all_bomb(i,j):
+def d_bomb(i,j):
     if main_array[i][j] == 10:
         if (i, j) in red_block:
             pg.draw.rect(screen, (255,0,0), [25+j*30, 105+i*30, 30,30])
@@ -373,7 +373,7 @@ while running:
 
         if event.type == pg.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pg.mouse.get_pos() 
-            if mouse_x > row*15 and mouse_x < 95+row*15 and mouse_y > 23 and mouse_y < 83:
+            if mouse_x > row*15 and mouse_x < 60+row*15 and mouse_y > 23 and mouse_y < 83:
                 game_set()
                 replay_button = False
                 win = False
@@ -421,14 +421,14 @@ while running:
                        
     d_background()
 
-    for i in range(column):
-        for j in range(row):
+    for y in range(column):
+        for x in range(row):
 
-            d_board(i,j)
+            d_board(y,x)
 
             if gameover:
 
-                d_all_bomb(i,j)
+                d_bomb(y,x)
 
     d_line()
     d_time()
