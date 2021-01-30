@@ -11,6 +11,7 @@ pip install random
 
 --------------------------------------
 
+>python minesweeper.py [row] [column] [bomb]
 
 ![커스텀 명령어](https://user-images.githubusercontent.com/65907318/106345724-96b6bd00-62f5-11eb-9524-6e0b9f06105a.PNG)
 
