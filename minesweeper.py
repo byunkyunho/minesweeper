@@ -5,7 +5,7 @@ import sys
 
 pg.init()
 
-if len(sys.argv) > 1:
+if len(sys.argv) > 1 and sys.argv[1].isdigit():
     row = int(sys.argv[1])
     if row < 10:
         row = 10
@@ -14,7 +14,7 @@ if len(sys.argv) > 1:
 else:
     row = 10
 
-if len(sys.argv) > 2:
+if len(sys.argv) > 2 and sys.argv[2].isdigit():
     column = int(sys.argv[2])
     if column < 10:
         column = 10
@@ -23,10 +23,12 @@ if len(sys.argv) > 2:
 else:
     column = 10
 
-if len(sys.argv) > 3:
+if len(sys.argv) > 3 and sys.argv[3].isdigit():
     all_bomb = int(sys.argv[3])
     if all_bomb > row*column-1:
         all_bomb = row*column-1
+    elif all_bomb < 1:
+        all_bomb = 1
 else:
     all_bomb = 10
 
@@ -401,7 +403,6 @@ while running:
                                     if state == 1:
                                         state_array[mouse_y][mouse_x] = 2
                                         bomb -= 1
-
 
                 if check_win():
                     win = True
