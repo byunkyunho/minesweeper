@@ -1,12 +1,37 @@
 import pygame as pg
 import random as rd
 import time
+import sys
 
 pg.init()
 
-screen = pg.display.set_mode((350, 430))
-pg.display.set_caption("minesweeper")
+if len(sys.argv) > 1:
+    row = int(sys.argv[1])
+    if row < 10:
+        row = 10
+    if row > 30:
+        row = 30
+else:
+    row = 10
 
+if len(sys.argv) > 2:
+    column = int(sys.argv[2])
+    if column < 10:
+        column = 10
+    elif column > 30:
+        column = 30
+else:
+    column = 10
+
+if len(sys.argv) > 3:
+    all_bomb = int(sys.argv[3])
+    if all_bomb > row*column-1:
+        all_bomb = row*column-1
+else:
+    all_bomb = 10
+
+screen = pg.display.set_mode((50+row*30, 130+column*30))
+pg.display.set_caption("minesweeper")
 
 try:
     load_image = pg.image.load("mine.png")
@@ -23,7 +48,6 @@ white = (255,255,255)
 
 pg.key.set_repeat(1, 1)
 
-bomb = 10
 down_button = 0
 
 running = True
@@ -62,28 +86,29 @@ def d_block(x1,y1, width, height, center_color, side_gap,ud_gap, flip):
 
 def set_array():
     global main_array, state_array
-    state_array = [[1 for a in range(10)] for b in range(10)]
-    main_array =  [[0 for a in range(10)] for b in range(10)] 
+    state_array = [[1 for a in range(row)] for b in range(column)]
+    main_array =  [[0 for a in range(row)] for b in range(column)] 
+
 
     random = 0
-    while not random == 10:
-        random_raw = rd.randint(0,9)
-        random_column = rd.randint(0,9)
+    while not random == all_bomb:
+        random_raw = rd.randint(0,column-1)
+        random_column = rd.randint(0,row-1)
         if not main_array[random_raw][random_column] == 10:
             main_array[random_raw][random_column] = 10
             random += 1
+    for y in range(column):
+        for x in range(row):
 
-    for loop in range(100):
-        x,y = loop % 10, loop // 10
-        around_bomb = 0
-        if not main_array[y][x] == 10:
-            check_list = [ x != 0, x !=9, y != 9, y != 0, y != 0 and x != 9, y != 0 and x != 0, y != 9 and x != 9, y != 9 and x != 0]
-            for check, index in zip(check_list, index_list):
-                if check:
-                    if main_array[y + index[0]][x + index[1]] == 10:
-                        around_bomb += 1
+            around_bomb = 0
+            if not main_array[y][x] == 10:
+                check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
+                for check, index in zip(check_list, index_list):
+                    if check:
+                        if main_array[y + index[0]][x + index[1]] == 10:
+                            around_bomb += 1
 
-            main_array[y][x] = around_bomb
+                main_array[y][x] = around_bomb
 
 def change_color(index):
     global light_color
@@ -114,7 +139,7 @@ def draw_num(x,y,num):
 
 def game_set():
     global main_array, state_array, gameover, bomb, start_time, start, win, red_block
-    bomb = 10
+    bomb = all_bomb
     set_array()
     gameover = False
     start_time = True
@@ -126,11 +151,11 @@ def d_time():
     global now
     if gameover or win:
         for a,num in enumerate(now):
-            draw_num(224+a*34,28, int(num))
+            draw_num(-76+30*row+a*34,28, int(num))
     else:
         if start == 0:
             for a in range(3):
-                draw_num(224+a*34,28, 0)
+                draw_num(-76+30*row+a*34,28, 0)
         else:
             now = round(time.time() - start)
             if int(now) > 999:
@@ -143,52 +168,55 @@ def d_time():
                 else:
                     now = str(now)
             for a,num in enumerate(now):
-                draw_num(224+a*34,28, int(num))
+                draw_num(-76+30*row+a*34,28, int(num))
 
 def d_background():
-    d_block(0,0,350,430,(192,192,192),4,4,True)
-    d_block(20 , 13 , 311 , 80,(198,198,198),5,2, False)
+    d_block(0,0,50+30*row,130+30*column,(192,192,192),4,4,True)
+    d_block(20 , 13 , 11+30*row , 80,(198,198,198),5,2, False) # 점수판
 
-    d_block(20, 100, 310,310,(0,0,0),5,5 ,False)
+    d_block(20, 100, 10+30*row,10+30*column,(0,0,0),5,5 ,False)
 
     d_block(30 , 23 , 110 , 60, (0,0,0),3,3, False)
-    d_block(209 , 23 , 110 , 60, (0,0,0),3,3, False)
-    d_block(145, 23 , 60,60 ,  (198,198,198),5,5, replay_button)
+    d_block( -91+30*row , 23 , 110 , 60, (0,0,0),3,3, False)
 
-    pg.draw.circle(screen, (248,253,34), (175,53), 20)
+    d_block(-5+15*row, 23 , 60,60 ,  (198,198,198),5,5, replay_button)
+
+    pg.draw.circle(screen, (248,253,34), (25+15*row,53), 20)
     
     if not gameover and not win:
-        pg.draw.circle(screen, (0,0,0), (168 , 48), 3)
-        pg.draw.circle(screen, (0,0,0), (183 , 48), 3)
-        pg.draw.ellipse(screen, (0,0,0), [165,57, 21, 10])
-        pg.draw.ellipse(screen, (255,255,0), [165,53, 21, 10]) 
+        pg.draw.circle(screen, (0,0,0), (18+15*row , 48), 3)
+        pg.draw.circle(screen, (0,0,0), (33+15*row , 48), 3)
+        pg.draw.ellipse(screen, (0,0,0), [15+15*row,57, 21, 10])
+        pg.draw.ellipse(screen, (255,255,0), [15+15*row,53, 21, 10]) 
     elif gameover and not win:
-        pg.draw.line(screen, (0,0,0),(165, 45), (170, 50) ,3)
-        pg.draw.line(screen, (0,0,0),(170, 45), (165, 50) ,3)
-        pg.draw.line(screen, (0,0,0),(180, 45), (185, 50) ,3)
-        pg.draw.line(screen, (0,0,0),(185, 45), (180, 50) ,3)
-        pg.draw.ellipse(screen, (0,0,0), [165,59, 21, 10])
-        pg.draw.ellipse(screen, (255,255,0), [165,63, 21, 10])
+        pg.draw.line(screen, (0,0,0),(15+15*row, 45), (20+15*row, 50) ,3)
+        pg.draw.line(screen, (0,0,0),(20+15*row, 45), (15+15*row, 50) ,3)
+        pg.draw.line(screen, (0,0,0),(30+15*row, 45), (35+15*row, 50) ,3)
+        pg.draw.line(screen, (0,0,0),(35+15*row, 45), (30+15*row, 50) ,3)
+        pg.draw.ellipse(screen, (0,0,0), [15+15*row,59, 21, 10])
+        pg.draw.ellipse(screen, (255,255,0), [15+15*row,63, 21, 10])
     else:
-        pg.draw.rect(screen, (0,0,0), [163, 44, 9, 7])
-        pg.draw.rect(screen, (0,0,0), [178, 44, 9, 7])
-        pg.draw.line(screen, (0,0,0),(163, 46), (185, 46) ,2)
-        pg.draw.line(screen, (0,0,0),(163, 46), (157, 43) ,2)
-        pg.draw.line(screen, (0,0,0),(187, 46), (192, 43) ,2)
-        pg.draw.ellipse(screen, (0,0,0), [165,57, 21, 10])
-        pg.draw.ellipse(screen, (255,255,0), [165,53, 21, 10]) 
+        pg.draw.rect(screen, (0,0,0), [13+15*row, 44, 9, 7])
+        pg.draw.rect(screen, (0,0,0), [28+15*row, 44, 9, 7])
+        pg.draw.line(screen, (0,0,0),(13+15*row, 46), (35+15*row, 46) ,2)
+        pg.draw.line(screen, (0,0,0),(13+15*row, 46), (7+15*row, 43) ,2)
+        pg.draw.line(screen, (0,0,0),(37+15*row, 46), (42+15*row, 43) ,2)
+        pg.draw.ellipse(screen, (0,0,0), [15+15*row,57, 21, 10])
+        pg.draw.ellipse(screen, (255,255,0), [15+15*row,53, 21, 10]) 
     
 def d_line():
-    for a in range(11):
-        pg.draw.line(screen, (128,128,128),(55+30*a, 105),(55+30*a, 404),  1)
-        pg.draw.line(screen, (128,128,128),(25, 104+30*a),(325, 104+30*a),  1)
+    for x in range(row):
+        pg.draw.line(screen, (128,128,128),(55+30*x, 105),(55+30*x, 104+30*column),  1)
+    for y in range(column):
+        pg.draw.line(screen, (128,128,128),(25, 104+30*y),(25+30*row, 104+30*y),  1)
 
 def check_win():
     find = 0
-    for a in range(100):
-        if state_array[a//10][a%10] == 0:
-            find += 1
-    if 90 == find:
+    for y in range(column):
+        for x in range(row):
+            if state_array[y][x] == 0:
+                find += 1
+    if (row*column - all_bomb) == find:
         return True
 
 def d_board(i,j):
@@ -207,31 +235,87 @@ def d_board(i,j):
 
 def d_all_bomb(i,j):
     if main_array[i][j] == 10:
-        if [i,j] == red_block:
+        if (i, j) in red_block:
             pg.draw.rect(screen, (255,0,0), [25+j*30, 105+i*30, 30,30])
         else:
             pg.draw.rect(screen, (196,196,196), [25+j*30, 105+i*30, 30,30])
         if load_mine:
-            screen.blit(mine_image, (29+j*30, 109+i*30))
+            screen.blit(mine_image, (29+j*30, 107+i*30))
         else:
             pg.draw.line(screen, (255,0,0),(35+j*30, 120+i*30),(45+j*30, 108+i*30),  2)
             pg.draw.circle(screen, (0,0,0), (40+j*30, 120+i*30), 10)
 
+def die(red_block_list):
+    global gameover, main_array, open_list, state_array, red_block, start, now, bomb
+    gameover = True
+    now = round((time.time() - start))
+    if int(now) > 999:
+        now = "999"
+    else:
+        if int(now) < 10:
+            now = f"00{now}"
+        elif int(now) <  100:
+            now = f"0{now}"
+        else:
+            now = str(now)
+    red_block =red_block_list
+
 def update_main_array():
     global gameover, main_array, open_list, state_array, red_block, start, now, bomb
     if main_array[mouse_y][mouse_x] == 10:
-        gameover = True
-        now = round((time.time() - start))
-        if int(now) > 999:
-            now = "999"
-        else:
-            if int(now) < 10:
-                now = f"00{now}"
-            elif int(now) <  100:
-                now = f"0{now}"
-            else:
-                now = str(now)
-        red_block = [mouse_y, mouse_x]
+        die([(mouse_y ,mouse_x)])
+
+    elif state == 0:
+        if main_array[mouse_y][mouse_x] != 0:
+            check_list = [ mouse_x != 0, mouse_x !=row-1, mouse_y != column-1, mouse_y != 0, mouse_y != 0 and mouse_x != row-1, mouse_y != 0 and mouse_x != 0, mouse_y != column-1 and mouse_x != row-1, mouse_y != column-1 and mouse_x != 0]
+            around_flag = 0
+            for (index_y, index_x), check in zip(index_list, check_list):
+                if check:
+                    if state_array[mouse_y + index_y][mouse_x + index_x] == 2:
+                        around_flag+=1
+
+            if around_flag == main_array[mouse_y][mouse_x]:
+                red_block_list = []
+            
+                for (index_y, index_x), check in zip(index_list, check_list):
+                    if check:
+                        if main_array[mouse_y + index_y][mouse_x + index_x] == 10:
+                            if state_array[mouse_y + index_y][mouse_x + index_x] != 2:
+                                red_block_list.append((mouse_y + index_y, mouse_x + index_x))
+                        elif main_array[mouse_y + index_y][mouse_x + index_x] == 0:
+                            open_list = [(mouse_y+ index_y, mouse_x+ index_x)]         
+                            for a in range(20):
+                                copy_list = open_list[:]
+                                for y,x in copy_list: 
+                                    check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
+                                    for check,index in zip(check_list, index_list):
+                                        if check:
+                                            if main_array[y + index[0]][x + index[1]] == 0:
+                                                open_list.append((y + index[0], x + index[1])) 
+
+                                    open_list = list(set(open_list))
+
+                            for y,x in open_list:
+                                if state_array[y][x] == 2:
+                                    bomb += 1 
+                                state_array[y][x] = 0
+
+                                check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
+
+                                for check, index in zip(check_list, index_list):
+                                    if check:
+                                        if not main_array[y + index[0]][x + index[1]] == 0:
+                                            if state_array[y + index[0]][x + index[1]] == 2:
+                                                bomb += 1
+                                            state_array[y + index[0]][x + index[1]] = 0
+
+
+                        else:
+                            if state_array[mouse_y + index_y][mouse_x + index_x] != 2:
+                                state_array[mouse_y +index_y][mouse_x + index_x] = 0
+
+                if red_block_list != []:
+                    die(red_block_list)
 
     elif state == 1 or state == 2:
         if state == 2:
@@ -241,7 +325,7 @@ def update_main_array():
             for a in range(20):
                 copy_list = open_list[:]
                 for y,x in copy_list: 
-                    check_list = [ x != 0, x !=9, y != 9, y != 0, y != 0 and x != 9, y != 0 and x != 0, y != 9 and x != 9, y != 9 and x != 0]
+                    check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
                     for check,index in zip(check_list, index_list):
                         if check:
                             if main_array[y + index[0]][x + index[1]] == 0:
@@ -254,7 +338,7 @@ def update_main_array():
                     bomb += 1 
                 state_array[y][x] = 0
 
-                check_list = [ x != 0, x !=9, y != 9, y != 0, y != 0 and x != 9, y != 0 and x != 0, y != 9 and x != 9, y != 9 and x != 0]
+                check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
 
                 for check, index in zip(check_list, index_list):
                     if check:
@@ -273,6 +357,8 @@ def left_bomb():
         string_bomb = f"00{bomb}"
     elif bomb < 100:
         string_bomb = f"0{bomb}"
+    else:
+        string_bomb = str(bomb)
     for a,num in enumerate(str(string_bomb)):
         draw_num(45 + a*34,28, int(num))
     
@@ -285,14 +371,14 @@ while running:
 
         if event.type == pg.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pg.mouse.get_pos() 
-            if mouse_x > 145 and mouse_x < 205 and mouse_y > 23 and mouse_y < 83:
+            if mouse_x > row*15 and mouse_x < 95+row*15 and mouse_y > 23 and mouse_y < 83:
                 game_set()
                 replay_button = False
                 win = False
                 down_button = 10
             
             if not win and not gameover:
-                if mouse_x > 32 and mouse_x < 323 and mouse_y > 107 and mouse_y < 398:
+                if mouse_x > 32 and mouse_x < 25+30*row and mouse_y > 107 and mouse_y < 104+30*column:
                     if start_time:
                         start = time.time()
                       
@@ -316,10 +402,12 @@ while running:
                                         state_array[mouse_y][mouse_x] = 2
                                         bomb -= 1
 
+
                 if check_win():
                     win = True
                     gameover = True
                     now = round((time.time() - start))
+                    bomb = 0
                     if int(now) > 999:
                         now = "999"
                     else:
@@ -332,8 +420,8 @@ while running:
                        
     d_background()
 
-    for i in range(10):
-        for j in range(10):
+    for i in range(column):
+        for j in range(row):
 
             d_board(i,j)
 
@@ -346,7 +434,7 @@ while running:
     left_bomb()
                    
     if win:
-        screen.blit(win_game, (58 , 195))
+        screen.blit(win_game, (-92+15*row , 35+15*column))
      
     if down_button > 0:
         down_button -= 1
