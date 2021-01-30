@@ -16,10 +16,6 @@ pip install random
 
 
 
-![커스텀 명령어](https://user-images.githubusercontent.com/65907318/106345724-96b6bd00-62f5-11eb-9524-6e0b9f06105a.PNG)
-
-
-
 ![디폴트](https://user-images.githubusercontent.com/65907318/106345666-36278000-62f5-11eb-8873-18b02ae7ba94.PNG)
 
 
