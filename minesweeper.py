@@ -53,7 +53,6 @@ pg.key.set_repeat(1, 1)
 down_button = 0
 
 running = True
-replay_button = True
 
 win_game = pg.font.SysFont("Viga", 150).render("WIN!", True, (255,255,255,128))
 
@@ -90,8 +89,6 @@ def set_array():
     global main_array, state_array
     state_array = [[1 for a in range(row)] for b in range(column)]
     main_array =  [[0 for a in range(row)] for b in range(column)] 
-
-
     random = 0
     while not random == all_bomb:
         random_raw = rd.randint(0,column-1)
@@ -101,7 +98,6 @@ def set_array():
             random += 1
     for y in range(column):
         for x in range(row):
-
             around_bomb = 0
             if not main_array[y][x] == 10:
                 check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
@@ -140,15 +136,16 @@ def draw_num(x,y,num):
         pg.draw.polygon(screen, light_color, [(x + xy_list[10],y + xy_list[11]), (x  + xy_list[12], y+ xy_list[13] ), (x + xy_list[14], y + xy_list[15])])
 
 def game_set():
-    global main_array, state_array, gameover, bomb, start_time, start, win, red_block
+    global main_array, state_array, gameover, bomb, start_time, start, win, red_block, button_up
     bomb = all_bomb
     set_array()
     gameover = False
     start_time = True
     start = 0
     win = False
+    button_up = True
     red_block = [None, None]
-
+    
 def d_time():
     global now
     if gameover or win:
@@ -181,7 +178,7 @@ def d_background():
     d_block(30 , 23 , 110 , 60, (0,0,0),3,3, False)
     d_block( -91+30*row , 23 , 110 , 60, (0,0,0),3,3, False)
 
-    d_block(-5+15*row, 23 , 60,60 ,  (198,198,198),5,5, replay_button)
+    d_block(-5+15*row, 23 , 60,60 ,  (198,198,198),5,5, button_up)
 
     pg.draw.circle(screen, (248,253,34), (25+15*row,53), 20)
     
@@ -375,10 +372,10 @@ while running:
             mouse_x, mouse_y = pg.mouse.get_pos() 
             if mouse_x > row*15 and mouse_x < 60+row*15 and mouse_y > 23 and mouse_y < 83:
                 game_set()
-                replay_button = False
+                button_up = False
                 win = False
-                down_button = 10
-            
+                down_time = time.time()
+
             if not win and not gameover:
                 if mouse_x > 32 and mouse_x < 25+30*row and mouse_y > 107 and mouse_y < 104+30*column:
                     if start_time:
@@ -394,7 +391,7 @@ while running:
                         update_main_array()
 
                     elif event.button == 3:
-                        if  not gameover and not win:
+                        if not gameover and not win:
                             if state == 2:
                                 state_array[mouse_y][mouse_x] = 1
                                 bomb += 1
@@ -437,11 +434,8 @@ while running:
     if win:
         screen.blit(win_game, (-92+15*row , 35+15*column))
      
-    if down_button > 0:
-        down_button -= 1
-    else:
-        replay_button = True
+    if not button_up:
+        if time.time() - down_time > 0.1:
+            button_up = True
 
     pg.display.update()
-
-    time.sleep(0.01)
