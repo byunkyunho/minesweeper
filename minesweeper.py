@@ -173,7 +173,7 @@ def d_time():
                 draw_num(-76+30*row+a*34,28, int(num))
 
 def d_background():
-    d_block(0,0,50+30*row,130+30*column,(192,192,192),4,4,True)
+    d_block(0,0,50+30*row,132+30*column,(192,192,192),4,4,True)
     d_block(20 , 13 , 11+30*row , 80,(198,198,198),5,2, False) # 점수판
 
     d_block(20, 100, 10+30*row,10+30*column,(0,0,0),5,5 ,False)
