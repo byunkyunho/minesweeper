@@ -8,9 +8,7 @@ pg.init()
 if len(sys.argv) > 1 and sys.argv[1].isdigit():
     row = int(sys.argv[1])
     if row < 10:
-        row = 10
-    if row > 30:
-        row = 30
+        row = 10 
 else:
     row = 10
 
@@ -30,7 +28,12 @@ if len(sys.argv) > 3 and sys.argv[3].isdigit():
     elif all_bomb < 1:
         all_bomb = 1
 else:
-    all_bomb = 10
+    all_bomb = int(round((row*column)/10, -1))
+    
+if row > column:
+    loop = row
+else:
+    loop = column
 
 screen = pg.display.set_mode((50+row*30, 130+column*30))
 pg.display.set_caption("minesweeper")
@@ -46,8 +49,6 @@ except :
 
 num_font = pg.font.SysFont("Viga",35 ,bold=100)
 
-white = (255,255,255)
-
 pg.key.set_repeat(1, 1)
 
 down_button = 0
@@ -56,7 +57,7 @@ running = True
 
 win_game = pg.font.SysFont("Viga", 150).render("WIN!", True, (255,255,255,128))
 
-color_list = [(0,0,255), (0,128,0), (255,0,0),(1, 0, 124),(1, 0, 124),(1, 0, 124),(1, 0, 124),(1, 0, 124)]
+num_color_list = [(0,0,255), (0,128,0), (255,0,0),(1, 0, 124),(1, 0, 124),(1, 0, 124),(1, 0, 124),(1, 0, 124)]
 
 index_list = [(0, - 1), (0,  1), (1, 0), ( -1, 0), (-1, 1), (- 1, - 1), (1,1), (1, -1)]
 
@@ -72,13 +73,14 @@ num_light_list =[
     (True, True, True, True, True, True, True),
     (True, True, False, True, True, True, True)
 ]
+
 text_list = []
 
 for a in range(8):
-    text_list.append(num_font.render(str(a+1), True,color_list[a]))
+    text_list.append(num_font.render(str(a+1), True,num_color_list[a]))
 
 def d_block(x1,y1, width, height, center_color, side_gap,ud_gap, flip):
-    block_color = [ (128,128,128), white]
+    block_color = [ (128,128,128), (255,255,255)]
     if flip:
         block_color.reverse()
     pg.draw.polygon(screen, block_color[0], [(x1, y1), (x1 + width, y1), (x1, y1 + height)])
@@ -96,6 +98,7 @@ def set_array():
         if not main_array[random_raw][random_column] == 10:
             main_array[random_raw][random_column] = 10
             random += 1
+
     for y in range(column):
         for x in range(row):
             around_bomb = 0
@@ -157,23 +160,15 @@ def d_time():
                 draw_num(-76+30*row+a*34,28, 0)
         else:
             now = round(time.time() - start)
-            if int(now) > 999:
-                now = "999"
-            else:
-                if int(now) < 10:
-                    now = f"00{now}"
-                elif int(now) < 100:
-                    now = f"0{now}"
-                else:
-                    now = str(now)
+            now = int_2_string(now)
             for a,num in enumerate(now):
                 draw_num(-76+30*row+a*34,28, int(num))
 
 def d_background():
     d_block(0,0,50+30*row,132+30*column,(192,192,192),4,4,True)
-    d_block(20 , 13 , 11+30*row , 80,(198,198,198),5,2, False) # 점수판
+    d_block(20 , 13 , 11+30*row , 80,(198,198,198),5,2, False) 
 
-    d_block(20, 100, 10+30*row,10+30*column,(0,0,0),5,5 ,False)
+    d_block(20, 100, 10+30*row,10+30*column,(0,0,0),5,5 ,False) 
 
     d_block(30 , 23 , 110 , 60, (0,0,0),3,3, False)
     d_block( -91+30*row , 23 , 110 , 60, (0,0,0),3,3, False)
@@ -248,16 +243,24 @@ def die(red_block_list):
     global gameover, main_array, open_list, state_array, red_block, start, now, bomb
     gameover = True
     now = round((time.time() - start))
-    if int(now) > 999:
-        now = "999"
-    else:
-        if int(now) < 10:
-            now = f"00{now}"
-        elif int(now) <  100:
-            now = f"0{now}"
-        else:
-            now = str(now)
-    red_block =red_block_list
+    now = int_2_string(now)
+    red_block = red_block_list
+
+def open_block(open):
+    global bomb
+    for y,x in open:
+        if state_array[y][x] == 2:
+            bomb += 1 
+        state_array[y][x] = 0
+
+        check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
+
+        for check, index in zip(check_list, index_list):
+            if check:
+                if not main_array[y + index[0]][x + index[1]] == 0:
+                    if state_array[y + index[0]][x + index[1]] == 2:
+                        bomb += 1
+                    state_array[y + index[0]][x + index[1]] = 0
 
 def update_main_array():
     global gameover, main_array, open_list, state_array, red_block, start, now, bomb
@@ -283,31 +286,19 @@ def update_main_array():
                                 red_block_list.append((mouse_y + index_y, mouse_x + index_x))
                         elif main_array[mouse_y + index_y][mouse_x + index_x] == 0:
                             open_list = [(mouse_y+ index_y, mouse_x+ index_x)]         
-                            for a in range(20):
-                                copy_list = open_list[:]
+                            copy_list  = []   
+                            
+                            for a in range(loop):
+                                copy_list = [xy for xy in open_list if xy not in copy_list]
                                 for y,x in copy_list: 
                                     check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
                                     for check,index in zip(check_list, index_list):
                                         if check:
                                             if main_array[y + index[0]][x + index[1]] == 0:
-                                                open_list.append((y + index[0], x + index[1])) 
+                                                open_list.append((y + index[0], x + index[1]))
+                                open_list = list(set(open_list))
 
-                                    open_list = list(set(open_list))
-
-                            for y,x in open_list:
-                                if state_array[y][x] == 2:
-                                    bomb += 1 
-                                state_array[y][x] = 0
-
-                                check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
-
-                                for check, index in zip(check_list, index_list):
-                                    if check:
-                                        if not main_array[y + index[0]][x + index[1]] == 0:
-                                            if state_array[y + index[0]][x + index[1]] == 2:
-                                                bomb += 1
-                                            state_array[y + index[0]][x + index[1]] = 0
-
+                            open_block(open_list)
 
                         else:
                             if state_array[mouse_y + index_y][mouse_x + index_x] != 2:
@@ -316,51 +307,43 @@ def update_main_array():
                 if red_block_list != []:
                     die(red_block_list)
 
-    elif state == 1 or state == 2:
-        if state == 2:
-            bomb += 1
+    elif state == 1 :#state == 2:
+
         if main_array[mouse_y][mouse_x] == 0:
+            
             open_list = [(mouse_y, mouse_x)]         
-            for a in range(20):
-                copy_list = open_list[:]
+            
+            copy_list  = []   
+
+            for a in range(loop):
+                copy_list = [xy for xy in open_list if xy not in copy_list]
                 for y,x in copy_list: 
                     check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
                     for check,index in zip(check_list, index_list):
                         if check:
                             if main_array[y + index[0]][x + index[1]] == 0:
-                                open_list.append((y + index[0], x + index[1])) 
-
-                    open_list = list(set(open_list))
-
-            for y,x in open_list:
-                if state_array[y][x] == 2:
-                    bomb += 1 
-                state_array[y][x] = 0
-
-                check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
-
-                for check, index in zip(check_list, index_list):
-                    if check:
-                        if not main_array[y + index[0]][x + index[1]] == 0:
-                            if state_array[y + index[0]][x + index[1]] == 2:
-                                bomb += 1
-                            state_array[y + index[0]][x + index[1]] = 0
-                                                  
+                                open_list.append((y + index[0], x + index[1]))
+                open_list = list(set(open_list))
+                        
+            open_block(open_list)
+                         
         else:
-            state_array[mouse_y][mouse_x] = 0           
+            state_array[mouse_y][mouse_x] = 0        
 
-def left_bomb():
-    global bomb
-    bomb = int(bomb)
-    if bomb < 10:
-        string_bomb = f"00{bomb}"
-    elif bomb < 100:
-        string_bomb = f"0{bomb}"
-    else:
-        string_bomb = str(bomb)
-    for a,num in enumerate(str(string_bomb)):
+def d_left_bomb():
+    for a,num in enumerate(int_2_string(bomb)):
         draw_num(45 + a*34,28, int(num))
-    
+
+def int_2_string(num):
+    if num < 10:
+        return f"00{num}"
+    elif num < 100:
+        return f"0{num}"
+    elif num > 999:
+        return "999"
+    else:
+        return str(num)
+
 game_set()
 
 while running:
@@ -369,25 +352,23 @@ while running:
             running = False
 
         if event.type == pg.MOUSEBUTTONDOWN:
-            mouse_x, mouse_y = pg.mouse.get_pos() 
+            mouse_x, mouse_y = pg.mouse.get_pos()
             if mouse_x > row*15 and mouse_x < 60+row*15 and mouse_y > 23 and mouse_y < 83:
                 game_set()
                 button_up = False
-                win = False
                 down_time = time.time()
 
             if not win and not gameover:
                 if mouse_x > 32 and mouse_x < 25+30*row and mouse_y > 107 and mouse_y < 104+30*column:
                     if start_time:
                         start = time.time()
-                      
                         start_time = False
 
                     mouse_x, mouse_y = (mouse_x - 25) // 30 ,(mouse_y - 105) // 30
 
                     state = state_array[mouse_y][mouse_x]
 
-                    if event.button == 1:
+                    if event.button == 1 and state != 2:
                         update_main_array()
 
                     elif event.button == 3:
@@ -406,16 +387,8 @@ while running:
                     gameover = True
                     now = round((time.time() - start))
                     bomb = 0
-                    if int(now) > 999:
-                        now = "999"
-                    else:
-                        if int(now) < 10:
-                            now = f"00{now}"
-                        elif int(now) <  100:
-                            now = f"0{now}"
-                        else:
-                            now = str(now)
-                       
+                    now = int_2_string(now)
+
     d_background()
 
     for y in range(column):
@@ -429,7 +402,7 @@ while running:
 
     d_line()
     d_time()
-    left_bomb()
+    d_left_bomb()
                    
     if win:
         screen.blit(win_game, (-92+15*row , 35+15*column))
