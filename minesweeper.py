@@ -79,6 +79,10 @@ text_list = []
 for a in range(8):
     text_list.append(num_font.render(str(a+1), True,num_color_list[a]))
 
+def for_loop(x,y):
+    check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
+    return zip(index_list, check_list)
+
 def d_block(x1,y1, width, height, center_color, side_gap,ud_gap, flip):
     block_color = [ (128,128,128), (255,255,255)]
     if flip:
@@ -103,8 +107,7 @@ def set_array():
         for x in range(row):
             around_bomb = 0
             if not main_array[y][x] == 10:
-                check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
-                for check, index in zip(check_list, index_list):
+                for  index,check in for_loop(x,y):
                     if check:
                         if main_array[y + index[0]][x + index[1]] == 10:
                             around_bomb += 1
@@ -253,9 +256,7 @@ def open_block(open):
             bomb += 1 
         state_array[y][x] = 0
 
-        check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
-
-        for check, index in zip(check_list, index_list):
+        for  index,check in for_loop(x,y):
             if check:
                 if not main_array[y + index[0]][x + index[1]] == 0:
                     if state_array[y + index[0]][x + index[1]] == 2:
@@ -269,9 +270,8 @@ def update_main_array():
 
     elif state == 0:
         if main_array[mouse_y][mouse_x] != 0:
-            check_list = [ mouse_x != 0, mouse_x !=row-1, mouse_y != column-1, mouse_y != 0, mouse_y != 0 and mouse_x != row-1, mouse_y != 0 and mouse_x != 0, mouse_y != column-1 and mouse_x != row-1, mouse_y != column-1 and mouse_x != 0]
             around_flag = 0
-            for (index_y, index_x), check in zip(index_list, check_list):
+            for (index_y, index_x), check in for_loop(mouse_x, mouse_y):
                 if check:
                     if state_array[mouse_y + index_y][mouse_x + index_x] == 2:
                         around_flag+=1
@@ -279,7 +279,7 @@ def update_main_array():
             if around_flag == main_array[mouse_y][mouse_x]:
                 red_block_list = []
             
-                for (index_y, index_x), check in zip(index_list, check_list):
+                for (index_y, index_x), check in for_loop(mouse_x, mouse_y):
                     if check:
                         if main_array[mouse_y + index_y][mouse_x + index_x] == 10:
                             if state_array[mouse_y + index_y][mouse_x + index_x] != 2:
@@ -291,8 +291,7 @@ def update_main_array():
                             for a in range(loop):
                                 copy_list = [xy for xy in open_list if xy not in copy_list]
                                 for y,x in copy_list: 
-                                    check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
-                                    for check,index in zip(check_list, index_list):
+                                    for index, check in for_loop(x,y):
                                         if check:
                                             if main_array[y + index[0]][x + index[1]] == 0:
                                                 open_list.append((y + index[0], x + index[1]))
@@ -318,8 +317,7 @@ def update_main_array():
             for a in range(loop):
                 copy_list = [xy for xy in open_list if xy not in copy_list]
                 for y,x in copy_list: 
-                    check_list = [ x != 0, x !=row-1, y != column-1, y != 0, y != 0 and x != row-1, y != 0 and x != 0, y != column-1 and x != row-1, y != column-1 and x != 0]
-                    for check,index in zip(check_list, index_list):
+                    for index, check in for_loop(x,y):
                         if check:
                             if main_array[y + index[0]][x + index[1]] == 0:
                                 open_list.append((y + index[0], x + index[1]))
