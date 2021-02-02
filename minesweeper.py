@@ -9,6 +9,8 @@ if len(sys.argv) > 1 and sys.argv[1].isdigit():
     row = int(sys.argv[1])
     if row < 10:
         row = 10 
+    elif row > 30:
+        row = 30
 else:
     row = 10
 
