@@ -286,11 +286,12 @@ def update_main_array():
                         if main_array[mouse_y + index_y][mouse_x + index_x] == 10:
                             if state_array[mouse_y + index_y][mouse_x + index_x] != 2:
                                 red_block_list.append((mouse_y + index_y, mouse_x + index_x))
+
                         elif main_array[mouse_y + index_y][mouse_x + index_x] == 0:
                             open_list = [(mouse_y+ index_y, mouse_x+ index_x)]         
                             copy_list  = []   
-                            
-                            for a in range(loop):
+                            list_len = 0
+                            for a in range(1000):
                                 copy_list = [xy for xy in open_list if xy not in copy_list]
                                 for y,x in copy_list: 
                                     for index, check in for_loop(x,y):
@@ -298,6 +299,9 @@ def update_main_array():
                                             if main_array[y + index[0]][x + index[1]] == 0:
                                                 open_list.append((y + index[0], x + index[1]))
                                 open_list = list(set(open_list))
+                                if list_len == len(open_list):
+                                    break
+                                list_len = len(open_list)
 
                             open_block(open_list)
 
@@ -305,18 +309,19 @@ def update_main_array():
                             if state_array[mouse_y + index_y][mouse_x + index_x] != 2:
                                 state_array[mouse_y +index_y][mouse_x + index_x] = 0
 
+
                 if red_block_list != []:
                     die(red_block_list)
 
-    elif state == 1 :#state == 2:
+    elif state == 1 :
 
         if main_array[mouse_y][mouse_x] == 0:
             
             open_list = [(mouse_y, mouse_x)]         
             
             copy_list  = []   
-
-            for a in range(loop):
+            list_len = 0
+            for a in range(1000):
                 copy_list = [xy for xy in open_list if xy not in copy_list]
                 for y,x in copy_list: 
                     for index, check in for_loop(x,y):
@@ -324,6 +329,9 @@ def update_main_array():
                             if main_array[y + index[0]][x + index[1]] == 0:
                                 open_list.append((y + index[0], x + index[1]))
                 open_list = list(set(open_list))
+                if list_len == len(open_list):
+                    break
+                list_len = len(open_list)
                         
             open_block(open_list)
                          
