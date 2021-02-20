@@ -86,7 +86,7 @@ def for_loop(x,y):
     return zip(index_list, check_list)
 
 def d_block(x1,y1, width, height, center_color, side_gap,ud_gap, flip):
-    block_color = [ (128,128,128), (255,255,255)]
+    block_color = [(128,128,128), (255,255,255)]
     if flip:
         block_color.reverse()
     pg.draw.polygon(screen, block_color[0], [(x1, y1), (x1 + width, y1), (x1, y1 + height)])
@@ -123,8 +123,7 @@ def change_color(index):
         light_color = (255,0,0)
 
 def draw_num(x,y,num):
-    global light_color, light
-    
+    global light
     light = num_light_list[num]
 
     num_xy_list =[
@@ -144,7 +143,7 @@ def draw_num(x,y,num):
         pg.draw.polygon(screen, light_color, [(x + xy_list[10],y + xy_list[11]), (x  + xy_list[12], y+ xy_list[13] ), (x + xy_list[14], y + xy_list[15])])
 
 def game_set():
-    global main_array, state_array, gameover, bomb, start_time, start, win, red_block, button_up
+    global gameover, bomb, start_time, start, win, red_block, button_up
     bomb = all_bomb
     set_array()
     gameover = False
@@ -245,7 +244,7 @@ def d_bomb(i,j):
             pg.draw.circle(screen, (0,0,0), (40+j*30, 120+i*30), 10)
 
 def die(red_block_list):
-    global gameover, main_array, open_list, state_array, red_block, start, now, bomb
+    global gameover, red_block
     gameover = True
     now = round((time.time() - start))
     now = int_2_string(now)
@@ -265,8 +264,24 @@ def open_block(open):
                         bomb += 1
                     state_array[y + index[0]][x + index[1]] = 0
 
+def all_around_block(start_x, start_y):
+    open_list = [(start_y, start_x)]         
+    copy_list  = []   
+    list_len = 0
+    for a in range(1000):
+        copy_list = [xy for xy in open_list if xy not in copy_list]
+        for y,x in copy_list: 
+            for index, check in for_loop(x,y):
+                if check:
+                    if main_array[y + index[0]][x + index[1]] == 0:
+                        open_list.append((y + index[0], x + index[1]))
+        open_list = list(set(open_list))
+        if list_len == len(open_list):
+            break
+        list_len = len(open_list)
+    return open_list
+
 def update_main_array():
-    global gameover, main_array, open_list, state_array, red_block, start, now, bomb
     if main_array[mouse_y][mouse_x] == 10:
         die([(mouse_y ,mouse_x)])
 
@@ -288,22 +303,7 @@ def update_main_array():
                                 red_block_list.append((mouse_y + index_y, mouse_x + index_x))
 
                         elif main_array[mouse_y + index_y][mouse_x + index_x] == 0:
-                            open_list = [(mouse_y+ index_y, mouse_x+ index_x)]         
-                            copy_list  = []   
-                            list_len = 0
-                            for a in range(1000):
-                                copy_list = [xy for xy in open_list if xy not in copy_list]
-                                for y,x in copy_list: 
-                                    for index, check in for_loop(x,y):
-                                        if check:
-                                            if main_array[y + index[0]][x + index[1]] == 0:
-                                                open_list.append((y + index[0], x + index[1]))
-                                open_list = list(set(open_list))
-                                if list_len == len(open_list):
-                                    break
-                                list_len = len(open_list)
-
-                            open_block(open_list)
+                            open_block(all_around_block(mouse_x + index_x, mouse_y+index_y))
 
                         else:
                             if state_array[mouse_y + index_y][mouse_x + index_x] != 2:
@@ -314,27 +314,9 @@ def update_main_array():
                     die(red_block_list)
 
     elif state == 1 :
-
         if main_array[mouse_y][mouse_x] == 0:
-            
-            open_list = [(mouse_y, mouse_x)]         
-            
-            copy_list  = []   
-            list_len = 0
-            for a in range(1000):
-                copy_list = [xy for xy in open_list if xy not in copy_list]
-                for y,x in copy_list: 
-                    for index, check in for_loop(x,y):
-                        if check:
-                            if main_array[y + index[0]][x + index[1]] == 0:
-                                open_list.append((y + index[0], x + index[1]))
-                open_list = list(set(open_list))
-                if list_len == len(open_list):
-                    break
-                list_len = len(open_list)
-                        
-            open_block(open_list)
-                         
+            open_block(all_around_block(mouse_x, mouse_y))
+             
         else:
             state_array[mouse_y][mouse_x] = 0        
 
